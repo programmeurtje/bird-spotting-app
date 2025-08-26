@@ -25,8 +25,8 @@ Een moderne React Native app voor het ontdekken van vogelwaarnemingen in je omge
 1. **Clone de repository**
 
    ```bash
-   git clone https://github.com/[username]/vogelspot-app.git
-   cd vogelspot-app
+   git clone https://github.com/programmeurtje/bird-spotting-app.git
+   cd bird-spotting-app
    ```
 
 2. **Installeer dependencies**
