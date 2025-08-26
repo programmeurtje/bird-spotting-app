@@ -8,8 +8,10 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "description": "Ontdek vogelwaarnemingen in je omgeving met real-time data van waarneming.nl",
-    "privacy": "unlisted",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -18,16 +20,25 @@
     "updates": {
       "enabled": true,
       "checkAutomatically": "ON_LOAD",
-      "fallbackToCacheTimeout": 5000
+      "fallbackToCacheTimeout": 5000,
+      "url": "https://u.expo.dev/dfd65b29-666a-4eb8-89a4-4a415eb72163"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.vogelspot.app",
       "buildNumber": "1",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Deze app heeft toegang tot je locatie nodig om vogels in de buurt te vinden.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Deze app heeft toegang tot je locatie nodig om vogels in de buurt te vinden."
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Deze app heeft toegang tot je locatie nodig om vogels in de buurt te vinden.",
+        "UIBackgroundModes": [
+          "background-fetch",
+          "background-processing",
+          "background-fetch",
+          "background-processing"
+        ]
       }
     },
     "android": {
@@ -43,21 +54,35 @@
         "ACCESS_COARSE_LOCATION",
         "RECEIVE_BOOT_COMPLETED",
         "VIBRATE",
-        "WAKE_LOCK"
+        "WAKE_LOCK",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "WAKE_LOCK",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
-    "notification": {
-      "icon": "./assets/notification-icon.png",
-      "color": "#3498db"
-    },
+    "privacy": "unlisted",
     "extra": {
       "eas": {
-        "projectId": "your-project-id-here"
+        "projectId": "dfd65b29-666a-4eb8-89a4-4a415eb72163"
       }
+    },
+    "plugins": [
+      "expo-location",
+      "expo-notifications"
+    ],
+    "owner": "superabraham",
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }

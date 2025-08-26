@@ -10,11 +10,11 @@ const BASE_URL = "https://waarneming.nl/api/v1";
 
 // Rarity levels mapping based on API response
 const RARITY_LEVELS: Record<number, RarityLevel> = {
-  0: { id: 0, name: "onbekend", color: "#95a5a6", emoji: "❓" },
-  1: { id: 1, name: "algemeen", color: "#27ae60", emoji: "🟢" },
-  2: { id: 2, name: "vrij algemeen", color: "#f39c12", emoji: "🟡" },
-  3: { id: 3, name: "zeldzaam", color: "#e67e22", emoji: "🟠" },
-  4: { id: 4, name: "zeer zeldzaam", color: "#e74c3c", emoji: "🔴" },
+  0: { id: 0, name: "onbekend", color: "#95a5a6", emoji: "" },
+  1: { id: 1, name: "algemeen", color: "#27ae60", emoji: "" },
+  2: { id: 2, name: "vrij algemeen", color: "#f39c12", emoji: "" },
+  3: { id: 3, name: "zeldzaam", color: "#e67e22", emoji: "" },
+  4: { id: 4, name: "zeer zeldzaam", color: "#e74c3c", emoji: "" },
 };
 
 // Helper function to calculate distance between two coordinates

@@ -10,10 +10,12 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useSettings } from "../hooks/useSettings";
 import { useNotifications } from "../hooks/useNotifications";
 import { WaarnemingAPI } from "../services/WaarnemingAPI";
 import { RootStackParamList } from "../types/navigation";
+import { Colors } from "../constants/colors";
 
 type SettingsScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -184,7 +186,7 @@ export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#3498db" />
+        <ActivityIndicator size="large" color={Colors.primary} />
         <Text style={styles.loadingText}>Instellingen laden...</Text>
       </View>
     );
@@ -200,7 +202,14 @@ export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
 
       {/* Notifications Section */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>🔔 Notificaties</Text>
+        <View style={styles.sectionHeader}>
+          <MaterialIcons
+            name="notifications"
+            size={20}
+            color={Colors.primary}
+          />
+          <Text style={styles.sectionTitle}>Notificaties</Text>
+        </View>
 
         <View style={styles.settingRow}>
           <View style={styles.settingInfo}>
@@ -212,8 +221,10 @@ export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
           <Switch
             value={settings.notificationsEnabled}
             onValueChange={handleNotificationToggle}
-            trackColor={{ false: "#e9ecef", true: "#3498db" }}
-            thumbColor={settings.notificationsEnabled ? "#fff" : "#f4f3f4"}
+            trackColor={{ false: Colors.divider, true: Colors.primary }}
+            thumbColor={
+              settings.notificationsEnabled ? Colors.surface : Colors.background
+            }
           />
         </View>
 
@@ -227,8 +238,10 @@ export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
           <Switch
             value={settings.rarebirdsOnly}
             onValueChange={handleRarebirdsToggle}
-            trackColor={{ false: "#e9ecef", true: "#3498db" }}
-            thumbColor={settings.rarebirdsOnly ? "#fff" : "#f4f3f4"}
+            trackColor={{ false: Colors.divider, true: Colors.primary }}
+            thumbColor={
+              settings.rarebirdsOnly ? Colors.surface : Colors.background
+            }
             disabled={!settings.notificationsEnabled}
           />
         </View>
@@ -247,7 +260,10 @@ export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
 
       {/* Search Settings Section */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>🔍 Zoeken</Text>
+        <View style={styles.sectionHeader}>
+          <MaterialIcons name="search" size={20} color={Colors.primary} />
+          <Text style={styles.sectionTitle}>Zoeken</Text>
+        </View>
 
         <View style={styles.settingColumn}>
           <Text style={styles.settingLabel}>Zoekradius</Text>
@@ -283,7 +299,10 @@ export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
 
       {/* Rarity Filter Section */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>🎯 Zeldzaamheid Filter</Text>
+        <View style={styles.sectionHeader}>
+          <MaterialIcons name="filter-list" size={20} color={Colors.primary} />
+          <Text style={styles.sectionTitle}>Zeldzaamheid Filter</Text>
+        </View>
 
         <View style={styles.settingColumn}>
           <Text style={styles.settingLabel}>Toon vogels vanaf</Text>
@@ -306,7 +325,12 @@ export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
                 ]}
                 onPress={() => handleMinRarityChange(rarity.id)}
               >
-                <Text style={styles.rarityEmoji}>{rarity.emoji}</Text>
+                <View
+                  style={[
+                    styles.rarityIndicator,
+                    { backgroundColor: rarity.color },
+                  ]}
+                />
                 <Text
                   style={[
                     styles.rarityOptionText,
@@ -345,7 +369,12 @@ export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
                   onPress={() => handleNotificationRarityChange(rarity.id)}
                   disabled={!settings.notificationsEnabled}
                 >
-                  <Text style={styles.rarityEmoji}>{rarity.emoji}</Text>
+                  <View
+                    style={[
+                      styles.rarityIndicator,
+                      { backgroundColor: rarity.color },
+                    ]}
+                  />
                   <Text
                     style={[
                       styles.rarityOptionText,
@@ -364,7 +393,10 @@ export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
 
       {/* App Info Section */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>ℹ️ App Info</Text>
+        <View style={styles.sectionHeader}>
+          <MaterialIcons name="info" size={20} color={Colors.primary} />
+          <Text style={styles.sectionTitle}>App Info</Text>
+        </View>
 
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>Zoekradius:</Text>
@@ -387,14 +419,21 @@ export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
 
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>Notificatie status:</Text>
-          <Text
-            style={[
-              styles.infoValue,
-              { color: getPermissionColor(notificationPermission) },
-            ]}
-          >
-            {getPermissionText(notificationPermission)}
-          </Text>
+          <View style={styles.permissionStatus}>
+            <MaterialIcons
+              name={getPermissionIcon(notificationPermission)}
+              size={16}
+              color={getPermissionColor(notificationPermission)}
+            />
+            <Text
+              style={[
+                styles.infoValue,
+                { color: getPermissionColor(notificationPermission) },
+              ]}
+            >
+              {getPermissionText(notificationPermission)}
+            </Text>
+          </View>
         </View>
 
         <View style={styles.infoRow}>
@@ -421,71 +460,89 @@ export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
 const getPermissionText = (permission: string) => {
   switch (permission) {
     case "granted":
-      return "✅ Toegestaan";
+      return "Toegestaan";
     case "denied":
-      return "❌ Geweigerd";
+      return "Geweigerd";
     case "pending":
-      return "⏳ Wachtend";
+      return "Wachtend";
     default:
-      return "❓ Onbekend";
+      return "Onbekend";
+  }
+};
+
+const getPermissionIcon = (permission: string) => {
+  switch (permission) {
+    case "granted":
+      return "check-circle";
+    case "denied":
+      return "cancel";
+    case "pending":
+      return "schedule";
+    default:
+      return "help";
   }
 };
 
 const getPermissionColor = (permission: string) => {
   switch (permission) {
     case "granted":
-      return "#27ae60";
+      return Colors.success;
     case "denied":
-      return "#e74c3c";
+      return Colors.error;
     case "pending":
-      return "#f39c12";
+      return Colors.warning;
     default:
-      return "#95a5a6";
+      return Colors.textMuted;
   }
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f8f9fa",
+    backgroundColor: Colors.background,
   },
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: "#7f8c8d",
+    color: Colors.textTertiary,
   },
   errorContainer: {
     margin: 16,
     padding: 12,
-    backgroundColor: "#ffeaa7",
+    backgroundColor: Colors.warning,
     borderRadius: 8,
     borderLeftWidth: 4,
-    borderLeftColor: "#e74c3c",
+    borderLeftColor: Colors.error,
   },
   errorText: {
-    color: "#e74c3c",
+    color: Colors.error,
     fontSize: 14,
   },
   section: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
     marginTop: 12,
     paddingVertical: 20,
     paddingHorizontal: 16,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: "#e9ecef",
+    borderColor: Colors.divider,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+    gap: 8,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#2c3e50",
-    marginBottom: 16,
+    color: Colors.textPrimary,
   },
   settingRow: {
     flexDirection: "row",
@@ -493,7 +550,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#f8f9fa",
+    borderBottomColor: Colors.divider,
   },
   settingColumn: {
     paddingVertical: 8,
@@ -505,16 +562,16 @@ const styles = StyleSheet.create({
   settingLabel: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#2c3e50",
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   settingDescription: {
     fontSize: 14,
-    color: "#7f8c8d",
+    color: Colors.textTertiary,
     lineHeight: 20,
   },
   testButton: {
-    backgroundColor: "#27ae60",
+    backgroundColor: Colors.success,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 8,
@@ -522,7 +579,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   testButtonText: {
-    color: "#fff",
+    color: Colors.surface,
     fontSize: 14,
     fontWeight: "600",
   },
@@ -537,20 +594,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: "#e9ecef",
-    backgroundColor: "#fff",
+    borderColor: Colors.border,
+    backgroundColor: Colors.surface,
   },
   radiusOptionSelected: {
-    borderColor: "#3498db",
-    backgroundColor: "#3498db",
+    borderColor: Colors.primary,
+    backgroundColor: Colors.primary,
   },
   radiusOptionText: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#7f8c8d",
+    color: Colors.textTertiary,
   },
   radiusOptionTextSelected: {
-    color: "#fff",
+    color: Colors.surface,
   },
   rarityOptions: {
     flexDirection: "row",
@@ -565,28 +622,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 20,
     borderWidth: 2,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
     minWidth: 100,
   },
   rarityOptionSelected: {
     // backgroundColor will be set dynamically based on rarity color
   },
-  rarityEmoji: {
-    fontSize: 16,
-    marginRight: 6,
+  rarityIndicator: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 8,
   },
   rarityOptionText: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#7f8c8d",
+    color: Colors.textTertiary,
     flex: 1,
   },
   rarityOptionTextSelected: {
-    color: "#fff",
+    color: Colors.surface,
     fontWeight: "600",
   },
   disabledText: {
-    color: "#bdc3c7",
+    color: Colors.textMuted,
   },
   infoRow: {
     flexDirection: "row",
@@ -596,25 +655,32 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 14,
-    color: "#7f8c8d",
+    color: Colors.textTertiary,
     flex: 1,
   },
   infoValue: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#2c3e50",
+    color: Colors.textPrimary,
     textAlign: "right",
     flex: 1,
   },
+  permissionStatus: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    flex: 1,
+    justifyContent: "flex-end",
+  },
   resetButton: {
-    backgroundColor: "#e74c3c",
+    backgroundColor: Colors.error,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 8,
     alignItems: "center",
   },
   resetButtonText: {
-    color: "#fff",
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: "600",
   },

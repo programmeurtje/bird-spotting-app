@@ -9,12 +9,14 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useLocation } from "../hooks/useLocation";
 import { useObservations } from "../hooks/useObservations";
 import { useNotifications } from "../hooks/useNotifications";
 import { useSettings } from "../hooks/useSettings";
 import { Observation } from "../types";
 import { RootStackParamList } from "../types/navigation";
+import { Colors } from "../constants/colors";
 
 interface BirdListItemProps {
   observation: Observation;
@@ -52,9 +54,7 @@ const BirdListItem: React.FC<BirdListItemProps> = ({
               styles.rarityBadge,
               { backgroundColor: observation.rarity.color },
             ]}
-          >
-            <Text style={styles.rarityEmoji}>{observation.rarity.emoji}</Text>
-          </View>
+          />
         </View>
         <View style={styles.distanceContainer}>
           <Text style={styles.distance}>
@@ -71,9 +71,12 @@ const BirdListItem: React.FC<BirdListItemProps> = ({
 
       <View style={styles.birdDetails}>
         <Text style={styles.date}>{formatDate(observation.date)}</Text>
-        <Text style={styles.location} numberOfLines={1}>
-          📍 {observation.location.name}
-        </Text>
+        <View style={styles.locationRow}>
+          <MaterialIcons name="place" size={14} color={Colors.textTertiary} />
+          <Text style={styles.location} numberOfLines={1}>
+            {observation.location.name}
+          </Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -121,12 +124,12 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
     }
   }, [notificationPermission, requestNotificationPermissions]);
 
-  // Reset hasFetched when location changes
+  // Reset hasFetched when location or radius changes
   useEffect(() => {
     if (location) {
       setHasFetched(false);
     }
-  }, [location?.latitude, location?.longitude]);
+  }, [location?.latitude, location?.longitude, settings.searchRadius]);
 
   // Auto-fetch observations when location is available
   useEffect(() => {
@@ -199,7 +202,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
     if (locationLoading || obsLoading) {
       return (
         <View style={styles.emptyState}>
-          <ActivityIndicator size="large" color="#3498db" />
+          <ActivityIndicator size="large" color={Colors.primary} />
           <Text style={styles.emptyStateText}>
             {locationLoading ? "Locatie ophalen..." : "Vogels zoeken..."}
           </Text>
@@ -210,7 +213,12 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
     if (locationError || !location) {
       return (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyStateTitle}>📍 Locatie Nodig</Text>
+          <MaterialIcons
+            name="location-on"
+            size={48}
+            color={Colors.textMuted}
+          />
+          <Text style={styles.emptyStateTitle}>Locatie Nodig</Text>
           <Text style={styles.emptyStateText}>
             We hebben je locatie nodig om vogels in de buurt te vinden.
           </Text>
@@ -230,7 +238,8 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
     if (obsError) {
       return (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyStateTitle}>⚠️ Fout</Text>
+          <MaterialIcons name="warning" size={48} color={Colors.error} />
+          <Text style={styles.emptyStateTitle}>Fout</Text>
           <Text style={styles.errorText}>{obsError}</Text>
           <TouchableOpacity
             style={styles.actionButton}
@@ -245,9 +254,10 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
     if (observations.length === 0) {
       return (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyStateTitle}>🐦 Geen Vogels Gevonden</Text>
+          <MaterialIcons name="search" size={48} color={Colors.textMuted} />
+          <Text style={styles.emptyStateTitle}>Geen Vogels Gevonden</Text>
           <Text style={styles.emptyStateText}>
-            Er zijn geen vogelwaarnemingen gevonden in de afgelopen week binnen
+            Er zijn geen vogelwaarnemingen gevonden in de afgelopen week binnen{" "}
             {settings.searchRadius}km van je locatie.
           </Text>
           <TouchableOpacity
@@ -274,13 +284,21 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
               style={styles.headerButton}
               onPress={() => navigation.navigate("Settings")}
             >
-              <Text style={styles.headerButtonText}>⚙️</Text>
+              <MaterialIcons
+                name="settings"
+                size={20}
+                color={Colors.textTertiary}
+              />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.headerButton}
               onPress={() => navigation.navigate("Test")}
             >
-              <Text style={styles.headerButtonText}>🧪</Text>
+              <MaterialIcons
+                name="science"
+                size={20}
+                color={Colors.textTertiary}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -323,8 +341,8 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={handleRefresh}
-            colors={["#3498db"]}
-            tintColor="#3498db"
+            colors={[Colors.primary]}
+            tintColor={Colors.primary}
           />
         }
         ListEmptyComponent={renderEmptyState}
@@ -337,15 +355,15 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
+    backgroundColor: Colors.background,
   },
   header: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
     padding: 20,
     paddingTop: 60,
     borderBottomWidth: 1,
-    borderBottomColor: "#e9ecef",
-    shadowColor: "#000",
+    borderBottomColor: Colors.divider,
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -364,11 +382,11 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#f8f9fa",
+    backgroundColor: Colors.background,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#e9ecef",
+    borderColor: Colors.border,
   },
   headerButtonText: {
     fontSize: 16,
@@ -376,18 +394,18 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#2c3e50",
+    color: Colors.textPrimary,
     textAlign: "center",
   },
   subtitle: {
     fontSize: 14,
-    color: "#7f8c8d",
+    color: Colors.textTertiary,
     textAlign: "center",
     marginTop: 4,
   },
   lastUpdated: {
     fontSize: 12,
-    color: "#95a5a6",
+    color: Colors.textMuted,
     textAlign: "center",
     marginTop: 4,
   },
@@ -398,16 +416,18 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   birdItem: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
     marginHorizontal: 16,
     marginVertical: 6,
     padding: 16,
     borderRadius: 12,
-    shadowColor: "#000",
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: Colors.divider,
   },
   birdHeader: {
     flexDirection: "row",
@@ -424,22 +444,17 @@ const styles = StyleSheet.create({
   birdName: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#2c3e50",
+    color: Colors.textPrimary,
     flex: 1,
     marginRight: 8,
   },
   rarityBadge: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  rarityEmoji: {
-    fontSize: 10,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
   },
   distanceContainer: {
-    backgroundColor: "#e8f5e8",
+    backgroundColor: Colors.tertiary,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -447,12 +462,12 @@ const styles = StyleSheet.create({
   distance: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#27ae60",
+    color: Colors.surface,
   },
   scientificName: {
     fontSize: 14,
     fontStyle: "italic",
-    color: "#7f8c8d",
+    color: Colors.textTertiary,
     marginBottom: 8,
   },
   birdDetails: {
@@ -460,12 +475,18 @@ const styles = StyleSheet.create({
   },
   date: {
     fontSize: 14,
-    color: "#34495e",
+    color: Colors.textSecondary,
     fontWeight: "500",
+  },
+  locationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
   },
   location: {
     fontSize: 14,
-    color: "#7f8c8d",
+    color: Colors.textTertiary,
+    flex: 1,
   },
   emptyState: {
     flex: 1,
@@ -476,34 +497,34 @@ const styles = StyleSheet.create({
   emptyStateTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#2c3e50",
+    color: Colors.textPrimary,
     marginBottom: 12,
     textAlign: "center",
   },
   emptyStateText: {
     fontSize: 16,
-    color: "#7f8c8d",
+    color: Colors.textTertiary,
     textAlign: "center",
     lineHeight: 24,
     marginBottom: 20,
   },
   errorText: {
     fontSize: 14,
-    color: "#e74c3c",
+    color: Colors.error,
     textAlign: "center",
     marginBottom: 20,
     padding: 12,
-    backgroundColor: "#ffeaa7",
+    backgroundColor: Colors.warning,
     borderRadius: 8,
   },
   actionButton: {
-    backgroundColor: "#3498db",
+    backgroundColor: Colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
   },
   actionButtonText: {
-    color: "#fff",
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: "600",
   },

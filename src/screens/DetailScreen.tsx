@@ -11,8 +11,10 @@ import {
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp } from "@react-navigation/native";
+import { MaterialIcons } from "@expo/vector-icons";
 import { Observation } from "../types";
 import { RootStackParamList } from "../types/navigation";
+import { Colors } from "../constants/colors";
 
 type DetailScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -120,7 +122,10 @@ export const DetailScreen: React.FC<Props> = ({ navigation, route }) => {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>📅 Wanneer</Text>
+        <View style={styles.sectionHeader}>
+          <MaterialIcons name="schedule" size={20} color={Colors.primary} />
+          <Text style={styles.sectionTitle}>Wanneer</Text>
+        </View>
         <Text style={styles.sectionContent}>
           {formatDate(observation.date)}
         </Text>
@@ -130,7 +135,10 @@ export const DetailScreen: React.FC<Props> = ({ navigation, route }) => {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>📍 Waar</Text>
+        <View style={styles.sectionHeader}>
+          <MaterialIcons name="place" size={20} color={Colors.primary} />
+          <Text style={styles.sectionTitle}>Waar</Text>
+        </View>
         <Text style={styles.sectionContent}>{observation.location.name}</Text>
         {observation.distance && (
           <Text style={styles.sectionSubContent}>
@@ -139,18 +147,30 @@ export const DetailScreen: React.FC<Props> = ({ navigation, route }) => {
         )}
 
         <TouchableOpacity style={styles.mapButton} onPress={handleShowOnMap}>
+          <MaterialIcons
+            name="map"
+            size={16}
+            color="#fff"
+            style={styles.mapButtonIcon}
+          />
           <Text style={styles.mapButtonText}>Toon op kaart</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>👤 Waarnemer</Text>
+        <View style={styles.sectionHeader}>
+          <MaterialIcons name="person" size={20} color={Colors.primary} />
+          <Text style={styles.sectionTitle}>Waarnemer</Text>
+        </View>
         <Text style={styles.sectionContent}>{observation.observer}</Text>
       </View>
 
       {observation.species.photo_url && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📸 Foto</Text>
+          <View style={styles.sectionHeader}>
+            <MaterialIcons name="photo" size={20} color={Colors.primary} />
+            <Text style={styles.sectionTitle}>Foto</Text>
+          </View>
           <Text style={styles.sectionSubContent}>
             Foto beschikbaar (wordt in volgende versie getoond)
           </Text>
@@ -158,7 +178,10 @@ export const DetailScreen: React.FC<Props> = ({ navigation, route }) => {
       )}
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>ℹ️ Details</Text>
+        <View style={styles.sectionHeader}>
+          <MaterialIcons name="info" size={20} color={Colors.primary} />
+          <Text style={styles.sectionTitle}>Details</Text>
+        </View>
         <View style={styles.detailRow}>
           <Text style={styles.detailLabel}>Waarneming ID:</Text>
           <Text style={styles.detailValue}>{observation.id}</Text>
@@ -182,13 +205,18 @@ export const DetailScreen: React.FC<Props> = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
+    backgroundColor: Colors.background,
   },
   header: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#e9ecef",
+    borderBottomColor: Colors.divider,
+    shadowColor: Colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   headerTop: {
     marginBottom: 8,
@@ -201,7 +229,7 @@ const styles = StyleSheet.create({
   birdName: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#2c3e50",
+    color: Colors.textPrimary,
     flex: 1,
     marginRight: 12,
   },
@@ -218,47 +246,58 @@ const styles = StyleSheet.create({
   rarityText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#495057",
+    color: Colors.textSecondary,
     marginTop: 4,
   },
   scientificName: {
     fontSize: 16,
     fontStyle: "italic",
-    color: "#6c757d",
+    color: Colors.textTertiary,
     marginBottom: 4,
   },
   section: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
     marginTop: 12,
     padding: 20,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: "#e9ecef",
+    borderColor: Colors.divider,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+    gap: 8,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#495057",
-    marginBottom: 12,
+    color: Colors.textPrimary,
   },
   sectionContent: {
     fontSize: 16,
-    color: "#212529",
+    color: Colors.textPrimary,
     lineHeight: 24,
   },
   sectionSubContent: {
     fontSize: 14,
-    color: "#6c757d",
+    color: Colors.textTertiary,
     marginTop: 4,
     lineHeight: 20,
   },
   mapButton: {
-    backgroundColor: "#007bff",
+    backgroundColor: Colors.primary,
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 6,
+    paddingVertical: 10,
+    borderRadius: 8,
     marginTop: 12,
     alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  mapButtonIcon: {
+    marginRight: 2,
   },
   mapButtonText: {
     color: "#fff",
@@ -269,16 +308,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 4,
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.divider,
   },
   detailLabel: {
     fontSize: 14,
-    color: "#6c757d",
+    color: Colors.textTertiary,
     flex: 1,
   },
   detailValue: {
     fontSize: 14,
-    color: "#212529",
+    color: Colors.textPrimary,
     fontFamily: "monospace",
     flex: 1,
     textAlign: "right",

@@ -11,57 +11,78 @@ interface UseSettingsResult {
   ) => Promise<void>;
 }
 
+/** --- Simple singleton store --- */
+let currentSettings: AppSettings | null = null;
+const listeners = new Set<(s: AppSettings) => void>();
+
+function notifyAll(next: AppSettings) {
+  currentSettings = next;
+  listeners.forEach((l) => l(next));
+}
+
 export const useSettings = (): UseSettingsResult => {
-  const [settings, setSettings] = useState<AppSettings>({
-    notificationsEnabled: true,
-    searchRadius: 2,
-    rarebirdsOnly: false,
-    minRarityLevel: 0,
-    notificationMinRarity: 3,
-    lastUpdated: new Date().toISOString(),
-  });
-  const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState<AppSettings>(
+    currentSettings ?? {
+      notificationsEnabled: true,
+      searchRadius: 2,
+      rarebirdsOnly: false,
+      minRarityLevel: 0,
+      notificationMinRarity: 3,
+      lastUpdated: new Date().toISOString(),
+    }
+  );
+  const [loading, setLoading] = useState(!currentSettings);
   const [error, setError] = useState<string | null>(null);
 
-  // Load settings on mount
+  // Initial load + subscribe to external updates
   useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const loadedSettings = await SettingsService.loadSettings();
-        setSettings(loadedSettings);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Instellingen laden mislukt"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
+    let mounted = true;
 
-    loadSettings();
+    (async () => {
+      try {
+        if (!currentSettings) {
+          const loaded = await SettingsService.loadSettings();
+          if (mounted) setSettings(loaded);
+          currentSettings = loaded;
+        } else {
+          // ensure local state matches the singleton if it was set elsewhere
+          setSettings(currentSettings);
+        }
+      } catch (e) {
+        if (mounted) {
+          setError(
+            e instanceof Error ? e.message : "Instellingen laden mislukt"
+          );
+        }
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+
+    const l = (s: AppSettings) => setSettings(s);
+    listeners.add(l);
+    return () => {
+      mounted = false;
+      listeners.delete(l);
+    };
   }, []);
 
-  // Update a specific setting
   const updateSetting = useCallback(
     async <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
-      setError(null);
-
       try {
-        const updatedSettings = await SettingsService.updateSetting(key, value);
-        setSettings(updatedSettings);
-      } catch (err) {
+        const next = await SettingsService.updateSetting(key, value);
+        // update local AND broadcast to all hook users (Home, Settings, etc.)
+        setSettings(next);
+        notifyAll(next);
+      } catch (e) {
         setError(
-          err instanceof Error ? err.message : "Instelling bijwerken mislukt"
+          e instanceof Error ? e.message : "Instelling bijwerken mislukt"
         );
+        throw e;
       }
     },
     []
   );
 
-  return {
-    settings,
-    loading,
-    error,
-    updateSetting,
-  };
+  return { settings, loading, error, updateSetting };
 };
